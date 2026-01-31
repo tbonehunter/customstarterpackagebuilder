@@ -1,0 +1,193 @@
+<!-- Views/MainWindow.axaml -->
+<Window xmlns="https://github.com/avaloniaui"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:vm="using:CustomStarterPackageBuilder.ViewModels"
+        x:Class="CustomStarterPackageBuilder.Views.MainWindow"
+        x:DataType="vm:MainWindowViewModel"
+        Title="Custom Starter Package Builder"
+        Width="900" Height="650"
+        MinWidth="800" MinHeight="550"
+        WindowStartupLocation="CenterScreen">
+    
+    <Design.DataContext>
+        <vm:MainWindowViewModel/>
+    </Design.DataContext>
+
+    <Grid RowDefinitions="Auto,*,Auto,Auto">
+        
+        <!-- Header -->
+        <Border Grid.Row="0" Background="#2d5a27" Padding="16">
+            <Grid ColumnDefinitions="*,Auto">
+                <StackPanel Grid.Column="0">
+                    <TextBlock Text="Custom Starter Package Builder" 
+                               FontSize="24" FontWeight="Bold" Foreground="White"/>
+                    <TextBlock Text="Select up to 5 items to include in your Stardew Valley starter package" 
+                               FontSize="14" Foreground="#cccccc" Margin="0,4,0,0"/>
+                </StackPanel>
+                <Button Grid.Column="1"
+                        Content="📥 Import Item List..."
+                        Click="OnImportItemsClicked"
+                        VerticalAlignment="Center"
+                        Padding="12,8"
+                        ToolTip.Tip="Import an extracted-items.json file from ItemDataExtractor"/>
+            </Grid>
+        </Border>
+
+        <!-- Main Content -->
+        <Grid Grid.Row="1" ColumnDefinitions="*,Auto,300" Margin="16">
+            
+            <!-- Left Panel: Item Browser -->
+            <Border Grid.Column="0" Background="#f5f5f5" CornerRadius="8" Padding="12">
+                <Grid RowDefinitions="Auto,Auto,*">
+                    
+                    <!-- Search and Filter -->
+                    <Grid Grid.Row="0" ColumnDefinitions="*,Auto" Margin="0,0,0,12">
+                        <TextBox Grid.Column="0" 
+                                 Text="{Binding SearchText}"
+                                 Watermark="Search items..."
+                                 Margin="0,0,8,0"/>
+                        <ComboBox Grid.Column="1" 
+                                  ItemsSource="{Binding Categories}"
+                                  SelectedItem="{Binding SelectedCategory}"
+                                  Width="150"/>
+                    </Grid>
+
+                    <!-- Item Count -->
+                    <TextBlock Grid.Row="1" 
+                               Text="{Binding FilteredItems.Count, StringFormat='Available Items: {0}'}"
+                               FontSize="12" Foreground="Gray" Margin="0,0,0,8"/>
+
+                    <!-- Item List -->
+                    <ListBox Grid.Row="2" 
+                             Name="ItemListBox"
+                             ItemsSource="{Binding FilteredItems}"
+                             SelectedItem="{Binding SelectedItem}"
+                             SelectionMode="Single">
+                        <ListBox.ItemTemplate>
+                            <DataTemplate>
+                                <Grid ColumnDefinitions="Auto,*,Auto" Margin="4">
+                                    <Border Grid.Column="0" 
+                                            Width="32" Height="32" 
+                                            Background="#e0e0e0" 
+                                            CornerRadius="4"
+                                            Margin="0,0,8,0">
+                                        <TextBlock Text="📦" 
+                                                   FontSize="16" 
+                                                   HorizontalAlignment="Center" 
+                                                   VerticalAlignment="Center"/>
+                                    </Border>
+                                    <StackPanel Grid.Column="1" VerticalAlignment="Center">
+                                        <TextBlock Text="{Binding Name}" FontWeight="SemiBold"/>
+                                        <TextBlock Text="{Binding Category}" FontSize="11" Foreground="Gray"/>
+                                    </StackPanel>
+                                    <TextBlock Grid.Column="2" 
+                                               Text="{Binding MaxStack, StringFormat='Max: {0}'}"
+                                               FontSize="11" Foreground="Gray"
+                                               VerticalAlignment="Center"/>
+                                </Grid>
+                            </DataTemplate>
+                        </ListBox.ItemTemplate>
+                    </ListBox>
+                </Grid>
+            </Border>
+
+            <!-- Center: Add/Remove Buttons -->
+            <StackPanel Grid.Column="1" VerticalAlignment="Center" Margin="12">
+                <Button Content="Add →" 
+                        Click="OnAddClicked"
+                        IsEnabled="{Binding CanAddItem}"
+                        Width="80" Margin="0,4"
+                        HorizontalContentAlignment="Center"/>
+                <Button Content="← Remove" 
+                        Click="OnRemoveClicked"
+                        IsEnabled="{Binding CanRemoveItem}"
+                        Width="80" Margin="0,4"
+                        HorizontalContentAlignment="Center"/>
+                <Button Content="Clear All" 
+                        Click="OnClearClicked"
+                        Width="80" Margin="0,16,0,0"
+                        HorizontalContentAlignment="Center"/>
+            </StackPanel>
+
+            <!-- Right Panel: Selected Items -->
+            <Border Grid.Column="2" Background="#fff8e1" CornerRadius="8" Padding="12">
+                <Grid RowDefinitions="Auto,*,Auto">
+                    
+                    <!-- Header -->
+                    <StackPanel Grid.Row="0" Margin="0,0,0,12">
+                        <TextBlock Text="Starter Package" FontSize="16" FontWeight="Bold"/>
+                        <TextBlock Text="{Binding SelectionCountText}" FontSize="12" Foreground="Gray"/>
+                    </StackPanel>
+
+                    <!-- Selected Items List -->
+                    <ListBox Grid.Row="1" 
+                             ItemsSource="{Binding SelectedItems}"
+                             SelectedItem="{Binding SelectedSelectedItem}"
+                             SelectionMode="Single"
+                             Background="Transparent">
+                        <ListBox.ItemTemplate>
+                            <DataTemplate>
+                                <Border Background="White" CornerRadius="4" Padding="8" Margin="0,2">
+                                    <Grid ColumnDefinitions="*,Auto">
+                                        <StackPanel Grid.Column="0">
+                                            <TextBlock Text="{Binding Item.Name}" FontWeight="SemiBold"/>
+                                            <TextBlock Text="{Binding Item.Type}" FontSize="11" Foreground="Gray"/>
+                                        </StackPanel>
+                                        <StackPanel Grid.Column="1" Orientation="Horizontal" VerticalAlignment="Center">
+                                            <TextBlock Text="Qty:" VerticalAlignment="Center" Margin="0,0,4,0"/>
+                                            <TextBox Text="{Binding Quantity}"
+                                                     Width="50"
+                                                     TextAlignment="Center"
+                                                     LostFocus="OnQuantityLostFocus"/>
+                                        </StackPanel>
+                                    </Grid>
+                                </Border>
+                            </DataTemplate>
+                        </ListBox.ItemTemplate>
+                    </ListBox>
+
+                    <!-- Slots Remaining -->
+                    <TextBlock Grid.Row="2" 
+                               Text="{Binding RemainingSlots, StringFormat='Slots remaining: {0}'}"
+                               HorizontalAlignment="Center"
+                               Margin="0,8,0,0"
+                               FontSize="12" Foreground="Gray"/>
+                </Grid>
+            </Border>
+        </Grid>
+
+        <!-- Output Path -->
+        <Border Grid.Row="2" Background="#f0f0f0" Padding="16,12">
+            <Grid ColumnDefinitions="Auto,*,Auto">
+                <TextBlock Grid.Column="0" 
+                           Text="Save to:" 
+                           VerticalAlignment="Center"
+                           Margin="0,0,8,0"/>
+                <TextBox Grid.Column="1" 
+                         Text="{Binding OutputPath}"
+                         Margin="0,0,8,0"/>
+                <Button Grid.Column="2" 
+                        Content="Browse..."
+                        Click="OnBrowseClicked"/>
+            </Grid>
+        </Border>
+
+        <!-- Footer: Status and Save -->
+        <Border Grid.Row="3" Background="#e8e8e8" Padding="16,12">
+            <Grid ColumnDefinitions="*,Auto">
+                <TextBlock Grid.Column="0" 
+                           Text="{Binding StatusMessage}"
+                           VerticalAlignment="Center"
+                           TextWrapping="Wrap"/>
+                <Button Grid.Column="1" 
+                        Content="Save Configuration"
+                        Click="OnSaveClicked"
+                        IsEnabled="{Binding CanSave}"
+                        Background="#2d5a27"
+                        Foreground="White"
+                        FontWeight="Bold"
+                        Padding="20,8"/>
+            </Grid>
+        </Border>
+    </Grid>
+</Window>

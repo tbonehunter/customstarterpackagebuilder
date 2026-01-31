@@ -1,0 +1,10 @@
+# .gitignore
+bin/
+obj/
+publish/
+*.zip
+*.user
+.vs/
+*.suo
+*.cache
+*.log
