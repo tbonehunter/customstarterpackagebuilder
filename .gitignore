@@ -8,3 +8,4 @@ publish/
 *.suo
 *.cache
 *.log
+SESSION_SUMMARY.md
