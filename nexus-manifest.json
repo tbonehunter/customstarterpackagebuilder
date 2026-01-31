@@ -1,0 +1,82 @@
+{
+    "Name": "Custom Starter Package Builder GUI",
+    "Author": "tbonehunter",
+    "Version": "1.0.0",
+    "Description": "A standalone visual configuration tool for the Custom Starter Package mod. Configure your starting items before launching Stardew Valley - no JSON editing required!",
+    "Category": "Utilities",
+    "UniqueID": "tbonehunter.CustomStarterPackageBuilder",
+
+    "Requirements": [
+        {
+            "Name": "Custom Starter Package",
+            "NexusID": 14152,
+            "Author": "aedenthorn",
+            "Required": true,
+            "Description": "The mod this tool configures"
+        }
+    ],
+    "Tags": [
+        "Utility",
+        "Configuration Tool",
+        "Standalone Application",
+        "GUI",
+        "Custom Starter Package"
+    ],
+    "Features": [
+        "Browse items by category (Objects, Craftables, Tools, Weapons, Boots, Hats, Trinkets)",
+        "Search items by name",
+        "Select up to 5 starting items with custom quantities",
+        "Auto-detects Custom Starter Package mod location",
+        "Exports directly to CSP's config.json format",
+        "Import item database from ItemDataExtractor",
+        "Cross-platform support (Windows)"
+    ],
+    "Installation": {
+        "Type": "Standalone Application",
+        "Instructions": [
+            "1. Download and extract the archive to any location",
+            "2. Ensure Custom Starter Package mod is installed in your Stardew Valley Mods folder",
+            "3. Run CustomStarterPackageBuilder.exe",
+            "4. Select your desired starting items (up to 5)",
+            "5. Click 'Export to Custom Starter Package' to save your configuration",
+            "6. Launch Stardew Valley and start a new game to receive your items"
+        ]
+    },
+    "Compatibility": {
+        "Platforms": ["Windows"],
+        "DotNetVersion": ".NET 8.0",
+        "Framework": "Avalonia 11.1.0",
+        "StardewValleyVersions": ["1.6+"]
+    },
+    "Links": {
+        "CustomStarterPackageMod": "https://www.nexusmods.com/stardewvalley/mods/14152",
+        "SourceCode": "https://github.com/tbonehunter/customstarterpackagebuilder"
+    },
+    "Credits": [
+        {
+            "Name": "aedenthorn",
+            "Role": "Original Custom Starter Package mod author"
+        },
+        {
+            "Name": "Avalonia Team",
+            "Role": "Cross-platform UI framework"
+        }
+    ],
+    "Changelog": {
+        "1.0.0": [
+            "Initial release",
+            "Category-based item browsing",
+            "Item search functionality",
+            "Quantity configuration with MaxStack validation",
+            "Auto-detection of CSP mod folder",
+            "Direct export to config.json format",
+            "Item database with 1,233+ game items"
+        ]
+    },
+    "Notes": [
+        "This is a STANDALONE application, not a SMAPI mod",
+        "Run this tool BEFORE launching Stardew Valley",
+        "Custom Starter Package loads items at game startup, so in-game configuration is not possible",
+        "The ItemDataExtractor companion mod can be used to extract updated item data from the game"
+    ]
+}
