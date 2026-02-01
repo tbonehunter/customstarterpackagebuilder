@@ -17,18 +17,29 @@
         
         <!-- Header -->
         <Border Grid.Row="0" Background="#2d5a27" Padding="16">
-            <Grid ColumnDefinitions="*,Auto">
+            <Grid ColumnDefinitions="*,Auto,Auto">
                 <StackPanel Grid.Column="0">
                     <TextBlock Text="Custom Starter Package Builder" 
                                FontSize="24" FontWeight="Bold" Foreground="White"/>
-                    <TextBlock Text="Select up to 5 items to include in your Stardew Valley starter package" 
-                               FontSize="14" Foreground="#cccccc" Margin="0,4,0,0"/>
+                    <StackPanel Orientation="Horizontal" Margin="0,4,0,0">
+                        <TextBlock Text="Select up to " FontSize="14" Foreground="#cccccc" VerticalAlignment="Center"/>
+                        <TextBox Text="{Binding MaxItemsText}" 
+                                 Width="40" 
+                                 TextAlignment="Center"
+                                 Padding="4,2"
+                                 Margin="4,0"
+                                 VerticalAlignment="Center"
+                                 ToolTip.Tip="Maximum number of items (1-999)"/>
+                        <TextBlock Text=" items to include in your Stardew Valley starter package" 
+                                   FontSize="14" Foreground="#cccccc" VerticalAlignment="Center"/>
+                    </StackPanel>
                 </StackPanel>
                 <Button Grid.Column="1"
                         Content="📥 Import Item List..."
                         Click="OnImportItemsClicked"
                         VerticalAlignment="Center"
                         Padding="12,8"
+                        Margin="0,0,8,0"
                         ToolTip.Tip="Import an extracted-items.json file from ItemDataExtractor"/>
             </Grid>
         </Border>

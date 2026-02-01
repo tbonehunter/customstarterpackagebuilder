@@ -23,8 +23,7 @@ public class MainWindowViewModel : INotifyPropertyChanged
     private string _statusMessage = "Ready";
     private bool _isLoading;
     private string _outputPath = "";
-
-    public const int MaxSelectedItems = 5;
+    private int _maxSelectedItems = 5;
 
     public MainWindowViewModel()
     {
@@ -144,6 +143,37 @@ public class MainWindowViewModel : INotifyPropertyChanged
             {
                 _outputPath = value;
                 OnPropertyChanged();
+            }
+        }
+    }
+
+    public int MaxSelectedItems
+    {
+        get => _maxSelectedItems;
+        set
+        {
+            // Ensure minimum of 1 and reasonable maximum
+            var newValue = Math.Max(1, Math.Min(value, 999));
+            if (_maxSelectedItems != newValue)
+            {
+                _maxSelectedItems = newValue;
+                OnPropertyChanged();
+                OnPropertyChanged(nameof(CanAddItem));
+                OnPropertyChanged(nameof(RemainingSlots));
+                OnPropertyChanged(nameof(SelectionCountText));
+                OnPropertyChanged(nameof(MaxItemsText));
+            }
+        }
+    }
+
+    public string MaxItemsText
+    {
+        get => _maxSelectedItems.ToString();
+        set
+        {
+            if (int.TryParse(value, out int parsed))
+            {
+                MaxSelectedItems = parsed;
             }
         }
     }
