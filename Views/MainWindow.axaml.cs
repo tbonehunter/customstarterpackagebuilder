@@ -61,16 +61,12 @@ public partial class MainWindow : Window
         var topLevel = GetTopLevel(this);
         if (topLevel == null) return;
 
-        // Try to start in the Mods folder or the current output path's directory
+        // Try to start in the current output path or Mods folder
         IStorageFolder? suggestedStartLocation = null;
         var currentPath = ViewModel.OutputPath;
-        if (!string.IsNullOrEmpty(currentPath))
+        if (!string.IsNullOrEmpty(currentPath) && System.IO.Directory.Exists(currentPath))
         {
-            var dir = System.IO.Path.GetDirectoryName(currentPath);
-            if (!string.IsNullOrEmpty(dir) && System.IO.Directory.Exists(dir))
-            {
-                suggestedStartLocation = await topLevel.StorageProvider.TryGetFolderFromPathAsync(dir);
-            }
+            suggestedStartLocation = await topLevel.StorageProvider.TryGetFolderFromPathAsync(currentPath);
         }
         
         // Fall back to Mods folder if current path doesn't exist
@@ -83,22 +79,16 @@ public partial class MainWindow : Window
             }
         }
 
-        var file = await topLevel.StorageProvider.SaveFilePickerAsync(new FilePickerSaveOptions
+        var folders = await topLevel.StorageProvider.OpenFolderPickerAsync(new FolderPickerOpenOptions
         {
-            Title = "Save Custom Starter Package Config",
-            SuggestedFileName = "config.json",
-            DefaultExtension = "json",
-            SuggestedStartLocation = suggestedStartLocation,
-            FileTypeChoices = new[]
-            {
-                new FilePickerFileType("JSON Files") { Patterns = new[] { "*.json" } },
-                new FilePickerFileType("All Files") { Patterns = new[] { "*.*" } }
-            }
+            Title = "Select Stardew Valley Mods Folder",
+            AllowMultiple = false,
+            SuggestedStartLocation = suggestedStartLocation
         });
 
-        if (file != null)
+        if (folders.Count > 0)
         {
-            ViewModel.OutputPath = file.Path.LocalPath;
+            ViewModel.OutputPath = folders[0].Path.LocalPath;
         }
     }
 

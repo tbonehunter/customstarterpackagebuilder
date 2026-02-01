@@ -1,7 +1,7 @@
 {
     "Name": "Custom Starter Package Builder GUI",
     "Author": "tbonehunter",
-    "Version": "1.0.0",
+    "Version": "1.1.0",
     "Description": "A standalone visual configuration tool for the Custom Starter Package mod. Configure your starting items before launching Stardew Valley - no JSON editing required!",
     "Category": "Utilities",
     "UniqueID": "tbonehunter.CustomStarterPackageBuilder",
@@ -13,6 +13,13 @@
             "Author": "aedenthorn",
             "Required": true,
             "Description": "The mod this tool configures"
+        },
+        {
+            "Name": "Content Patcher",
+            "NexusID": 1915,
+            "Author": "Pathoschild",
+            "Required": true,
+            "Description": "Required for the generated content pack"
         }
     ],
     "Tags": [
@@ -20,14 +27,15 @@
         "Configuration Tool",
         "Standalone Application",
         "GUI",
-        "Custom Starter Package"
+        "Custom Starter Package",
+        "Content Patcher"
     ],
     "Features": [
         "Browse items by category (Objects, Craftables, Tools, Weapons, Boots, Hats, Trinkets)",
         "Search items by name",
-        "Select up to 5 starting items with custom quantities",
-        "Auto-detects Custom Starter Package mod location",
-        "Exports directly to CSP's config.json format",
+        "Configurable max item limit (default 5, adjustable in GUI)",
+        "Auto-detects Stardew Valley Mods folder",
+        "Creates a Content Patcher pack for Custom Starter Package",
         "Import item database from ItemDataExtractor",
         "Cross-platform support (Windows)"
     ],
@@ -36,10 +44,11 @@
         "Instructions": [
             "1. Download and extract the archive to any location",
             "2. Ensure Custom Starter Package mod is installed in your Stardew Valley Mods folder",
-            "3. Run CustomStarterPackageBuilder.exe",
-            "4. Select your desired starting items (up to 5)",
-            "5. Click 'Export to Custom Starter Package' to save your configuration",
-            "6. Launch Stardew Valley and start a new game to receive your items"
+            "3. Ensure Content Patcher mod is installed in your Stardew Valley Mods folder",
+            "4. Run CustomStarterPackageBuilder.exe",
+            "5. Select your desired starting items (adjust max limit if needed)",
+            "6. Click 'Export to Content Pack' to create the content pack",
+            "7. Launch Stardew Valley and start a new game to receive your items"
         ]
     },
     "Compatibility": {
@@ -63,6 +72,13 @@
         }
     ],
     "Changelog": {
+        "1.1.0": [
+            "BREAKING: Now exports as Content Patcher pack (required by Custom Starter Package)",
+            "Configurable max item limit (no longer hard-coded to 5)",
+            "Added Content Patcher as a requirement",
+            "Updated UI: 'Export to Content Pack' button, 'Mods Folder' selector",
+            "Type mapping: Weapon->MeleeWeapon, Trinket->Object"
+        ],
         "1.0.0": [
             "Initial release",
             "Category-based item browsing",
@@ -77,6 +93,7 @@
         "This is a STANDALONE application, not a SMAPI mod",
         "Run this tool BEFORE launching Stardew Valley",
         "Custom Starter Package loads items at game startup, so in-game configuration is not possible",
+        "The tool creates a '[CP] Custom Starter Package Config' folder in your Mods directory",
         "The ItemDataExtractor companion mod can be used to extract updated item data from the game"
     ]
 }

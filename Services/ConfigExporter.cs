@@ -11,10 +11,13 @@ using CustomStarterPackageBuilder.Models;
 namespace CustomStarterPackageBuilder.Services;
 
 /// <summary>
-/// Service for exporting starter package configuration to Custom Starter Package's config.json format.
+/// Service for exporting starter package configuration as a Content Patcher pack.
 /// </summary>
 public class ConfigExporter
 {
+    private const string ContentPackName = "[CP] Custom Starter Package Config";
+    private const string UniqueId = "tbonehunter.CSPConfig";
+    
     private static readonly JsonSerializerOptions JsonOptions = new()
     {
         WriteIndented = true,
@@ -22,42 +25,95 @@ public class ConfigExporter
     };
 
     /// <summary>
-    /// Export selected items directly to Custom Starter Package's config.json file.
+    /// Export selected items as a Content Patcher pack in the Mods folder.
     /// </summary>
     /// <param name="selectedItems">The items selected for the starter package.</param>
-    /// <param name="configFilePath">The path to the config.json file.</param>
-    public async Task ExportAsync(IEnumerable<SelectedItem> selectedItems, string configFilePath)
+    /// <param name="modsFolder">The path to the Stardew Valley Mods folder.</param>
+    public async Task ExportAsync(IEnumerable<SelectedItem> selectedItems, string modsFolder)
     {
-        // Ensure the directory exists
-        var directory = Path.GetDirectoryName(configFilePath);
-        if (!string.IsNullOrEmpty(directory))
-        {
-            Directory.CreateDirectory(directory);
-        }
+        // Create the content pack folder
+        var packFolder = Path.Combine(modsFolder, ContentPackName);
+        Directory.CreateDirectory(packFolder);
 
-        // Create the config object
-        var config = new CSPConfig
+        // Create manifest.json
+        var manifest = new ContentPackManifest
         {
-            ModEnabled = true,
-            SelectedItems = selectedItems.Select(SelectedItemData.FromSelectedItem).ToList()
+            Name = "Custom Starter Package Config",
+            Author = "tbonehunter",
+            Version = "1.0.0",
+            Description = "Custom starter items configured with Custom Starter Package Builder GUI.",
+            UniqueID = UniqueId,
+            ContentPackFor = new ContentPackForEntry { UniqueID = "Pathoschild.ContentPatcher" },
+            Dependencies = new List<DependencyEntry>
+            {
+                new DependencyEntry { UniqueID = "aedenthorn.CustomStarterPackage", IsRequired = true }
+            }
         };
 
-        // Write the config file
-        var json = JsonSerializer.Serialize(config, JsonOptions);
-        await File.WriteAllTextAsync(configFilePath, json);
+        var manifestJson = JsonSerializer.Serialize(manifest, JsonOptions);
+        await File.WriteAllTextAsync(Path.Combine(packFolder, "manifest.json"), manifestJson);
+
+        // Create content.json with entries
+        var entries = new Dictionary<string, CPStarterItemEntry>();
+        foreach (var selected in selectedItems)
+        {
+            var entryKey = $"{UniqueId}/{SanitizeEntryKey(selected.Item.Name)}";
+            entries[entryKey] = CPStarterItemEntry.FromSelectedItem(selected);
+        }
+
+        var content = new ContentPatcherContent
+        {
+            Format = "2.0.0",
+            Changes = new List<ContentPatcherChange>
+            {
+                new ContentPatcherChange
+                {
+                    Action = "EditData",
+                    Target = "aedenthorn.CustomStarterPackage/dictionary",
+                    Entries = entries
+                }
+            }
+        };
+
+        var contentJson = JsonSerializer.Serialize(content, JsonOptions);
+        await File.WriteAllTextAsync(Path.Combine(packFolder, "content.json"), contentJson);
     }
 
     /// <summary>
-    /// Try to find Custom Starter Package's config.json file.
-    /// Searches recursively through nested folders since SMAPI supports nested mod organization.
+    /// Sanitize item name for use as an entry key (remove special characters).
     /// </summary>
-    public static string? FindCSPConfigPath()
+    private static string SanitizeEntryKey(string name)
     {
-        var modsFolder = FindModsFolder();
-        if (modsFolder == null)
-            return null;
+        // Replace spaces and special characters with underscores, keep alphanumeric
+        var sanitized = new string(name.Select(c => char.IsLetterOrDigit(c) ? c : '_').ToArray());
+        // Remove consecutive underscores
+        while (sanitized.Contains("__"))
+            sanitized = sanitized.Replace("__", "_");
+        return sanitized.Trim('_');
+    }
 
-        // Known folder names for Custom Starter Package
+    /// <summary>
+    /// Get the path to the Content Pack folder.
+    /// </summary>
+    public static string GetContentPackPath(string modsFolder)
+    {
+        return Path.Combine(modsFolder, ContentPackName);
+    }
+
+    /// <summary>
+    /// Check if a Content Pack already exists.
+    /// </summary>
+    public static bool ContentPackExists(string modsFolder)
+    {
+        var packFolder = Path.Combine(modsFolder, ContentPackName);
+        return Directory.Exists(packFolder) && File.Exists(Path.Combine(packFolder, "content.json"));
+    }
+
+    /// <summary>
+    /// Try to find Custom Starter Package mod folder (to verify the mod is installed).
+    /// </summary>
+    public static string? FindCSPModFolder(string modsFolder)
+    {
         var possibleNames = new[]
         {
             "CustomStarterPackage",
@@ -66,20 +122,17 @@ public class ConfigExporter
             "aedenthorn.CustomStarterPackage"
         };
 
-        // Search recursively through all subdirectories (SMAPI supports nested mod folders)
         try
         {
             foreach (var dir in Directory.GetDirectories(modsFolder, "*", SearchOption.AllDirectories))
             {
                 var dirName = Path.GetFileName(dir);
                 
-                // Check if folder name matches known names
                 if (possibleNames.Any(name => string.Equals(dirName, name, StringComparison.OrdinalIgnoreCase)))
                 {
-                    return Path.Combine(dir, "config.json");
+                    return dir;
                 }
                 
-                // Also check manifest.json for the UniqueID
                 var manifestPath = Path.Combine(dir, "manifest.json");
                 if (File.Exists(manifestPath))
                 {
@@ -88,12 +141,12 @@ public class ConfigExporter
                         var manifestText = File.ReadAllText(manifestPath);
                         if (manifestText.Contains("aedenthorn.CustomStarterPackage", StringComparison.OrdinalIgnoreCase))
                         {
-                            return Path.Combine(dir, "config.json");
+                            return dir;
                         }
                     }
                     catch
                     {
-                        // Ignore read errors on individual manifests
+                        // Ignore read errors
                     }
                 }
             }

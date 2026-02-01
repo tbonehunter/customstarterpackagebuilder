@@ -31,18 +31,18 @@ public class MainWindowViewModel : INotifyPropertyChanged
         FilteredItems = new ObservableCollection<GameItem>();
         Categories = new ObservableCollection<string>();
         
-        // Try to find Custom Starter Package's config.json
-        var cspConfigPath = ConfigExporter.FindCSPConfigPath();
-        if (cspConfigPath != null)
+        // Try to find Stardew Valley Mods folder
+        var modsFolder = ConfigExporter.FindModsFolder();
+        if (modsFolder != null)
         {
-            OutputPath = cspConfigPath;
+            OutputPath = modsFolder;
         }
         else
         {
             // Fallback to Documents folder
             OutputPath = Path.Combine(
                 Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments),
-                "CustomStarterPackage_config.json");
+                "StardewValleyMods");
         }
     }
 
@@ -289,17 +289,33 @@ public class MainWindowViewModel : INotifyPropertyChanged
 
         if (string.IsNullOrWhiteSpace(OutputPath))
         {
-            StatusMessage = "Please specify an output path for config.json.";
+            StatusMessage = "Please specify the Stardew Valley Mods folder.";
+            return;
+        }
+
+        // Verify the Mods folder exists
+        if (!Directory.Exists(OutputPath))
+        {
+            StatusMessage = $"Mods folder not found: {OutputPath}";
+            return;
+        }
+
+        // Check if Custom Starter Package mod is installed
+        var cspFolder = ConfigExporter.FindCSPModFolder(OutputPath);
+        if (cspFolder == null)
+        {
+            StatusMessage = "Custom Starter Package mod not found in Mods folder. Please install it first.";
             return;
         }
 
         IsLoading = true;
-        StatusMessage = "Saving configuration...";
+        StatusMessage = "Creating Content Patcher pack...";
 
         try
         {
             await _exporter.ExportAsync(SelectedItems, OutputPath);
-            StatusMessage = $"Saved {SelectedItems.Count} items to: {OutputPath}";
+            var packPath = ConfigExporter.GetContentPackPath(OutputPath);
+            StatusMessage = $"Created Content Patcher pack with {SelectedItems.Count} items at: {packPath}";
         }
         catch (Exception ex)
         {
