@@ -84,6 +84,24 @@ Edit `Data/items.json` directly. Each item needs:
 
 When you run **ItemDataExtractor** with other mods installed (Json Assets, Content Patcher packs, Stardew Valley Expanded, etc.), it will extract all items including mod-added items. Import the new list into the GUI to configure starter packages with modded items.
 
+## Known Limitations (Custom Starter Package mod)
+
+These are limitations in the **Custom Starter Package** mod itself, not this GUI tool:
+
+| Item Type | Quantity Support | Quality Support | Notes |
+|-----------|-----------------|-----------------|-------|
+| **Objects** (crops, seeds, resources, etc.) | ✅ Yes | ✅ Yes | Full support |
+| **BigCraftables** (Cheese Press, Kegs, Big Chest, etc.) | ❌ **Always 1** | N/A | CSP creates only 1 item regardless of quantity set |
+| **Tools** (Axe, Pickaxe, Hoe, etc.) | ❌ Always 1 | N/A | Tools don't stack (expected) |
+| **Weapons** | ❌ Always 1 | N/A | Weapons don't stack (expected) |
+| **Hats** | ❌ Always 1 | N/A | Hats don't stack (expected) |
+| **Boots** | ❌ Always 1 | N/A | Boots don't stack (expected) |
+| **Rings** | ❌ Always 1 | N/A | Rings don't stack (expected) |
+| **Clothing** | ❌ Always 1 | N/A | Clothing doesn't stack (expected) |
+| **Furniture** | ❌ Always 1 | N/A | CSP creates only 1 item regardless of quantity set |
+
+**Note:** BigCraftables and Furniture *can* stack in vanilla Stardew Valley, but CSP doesn't pass the quantity to the item constructor. If you need multiple BigCraftables, add them as separate items in your starter package.
+
 ## Credits
 
 - **Custom Starter Package** by aedenthorn
